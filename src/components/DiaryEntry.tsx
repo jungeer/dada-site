@@ -4,8 +4,8 @@ import type { DiaryEntry as DiaryEntryType } from "../types";
 
 interface DiaryEntryProps {
   entry: DiaryEntryType;
-  onDelete: (id: string) => void;
-  onEdit: (entry: DiaryEntryType) => void;
+  onDelete?: (id: string) => void;
+  onEdit?: (entry: DiaryEntryType) => void;
 }
 
 export default function DiaryEntry({
@@ -34,22 +34,28 @@ export default function DiaryEntry({
             <h3 className="text-xl font-semibold mb-1">{entry.title}</h3>
             <p className="text-gray-500 text-sm">{formattedDate}</p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => onEdit(entry)}
-              className="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100 transition"
-              aria-label="编辑"
-            >
-              <Edit className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => onDelete(entry.id)}
-              className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100 transition"
-              aria-label="删除"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </div>
+          {(onEdit || onDelete) && (
+            <div className="flex gap-2">
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(entry)}
+                  className="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100 transition"
+                  aria-label="编辑"
+                >
+                  <Edit className="w-5 h-5" />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(entry.id)}
+                  className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100 transition"
+                  aria-label="删除"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
         <p className="text-gray-700 whitespace-pre-wrap">{entry.content}</p>
       </div>
