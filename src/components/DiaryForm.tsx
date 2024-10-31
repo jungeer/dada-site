@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { PlusCircle, Image as ImageIcon } from "lucide-react";
-import type { DiaryEntry } from "../types";
+import type { NewDiaryEntry } from "../types";
 
 interface DiaryFormProps {
-  onSubmit: (entry: Omit<DiaryEntry, "id">) => void;
+  onSubmit: (entry: NewDiaryEntry) => void;
 }
 
 export default function DiaryForm({ onSubmit }: DiaryFormProps) {
@@ -27,7 +27,6 @@ export default function DiaryForm({ onSubmit }: DiaryFormProps) {
     if (!title.trim() || !content.trim()) return;
 
     onSubmit({
-      date: new Date().toISOString(),
       title: title.trim(),
       content: content.trim(),
       image,

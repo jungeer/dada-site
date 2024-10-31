@@ -13,11 +13,17 @@ import DiaryEntry from "./components/DiaryEntry";
 import { useDiaryEntries } from "./hooks/useDiaryEntries";
 import { useBackgroundImage } from "./hooks/useBackgroundImage";
 import type { DiaryEntry as DiaryEntryType } from "./types";
+import Toast from "./components/Toast";
 
 function App() {
-  const { entries, addEntry, deleteEntry, updateEntry } = useDiaryEntries();
+  const { entries, isLoading, addEntry, deleteEntry, updateEntry } =
+    useDiaryEntries();
   const { backgroundImage, updateBackgroundImage } = useBackgroundImage();
   const [editingEntry, setEditingEntry] = useState<DiaryEntryType | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = (entry: DiaryEntryType) => {
@@ -140,25 +146,57 @@ function App() {
           </div>
 
           <DiaryForm
-            onSubmit={(entry) => {
+            onSubmit={async (entry) => {
               if (editingEntry) {
-                updateEntry({ ...entry, id: editingEntry.id });
-                setEditingEntry(null);
+                const result = await updateEntry({
+                  ...entry,
+                  id: editingEntry.id,
+                  created_at: editingEntry.created_at,
+                });
+                if (result.success) {
+                  setToast({ message: "日记更新成功！", type: "success" });
+                  setEditingEntry(null);
+                } else {
+                  setToast({ message: "日记更新失败", type: "error" });
+                }
               } else {
-                addEntry(entry);
+                const result = await addEntry(entry);
+                if (result.success) {
+                  setToast({ message: "日记添加成功！", type: "success" });
+                } else {
+                  setToast({ message: "日记添加失败", type: "error" });
+                }
               }
             }}
           />
 
           <div className="mt-12 space-y-8">
-            {entries.map((entry) => (
-              <DiaryEntry
-                key={entry.id}
-                entry={entry}
-                onDelete={deleteEntry}
-                onEdit={handleEdit}
-              />
-            ))}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                <p className="mt-2 text-gray-600">加载中...</p>
+              </div>
+            ) : entries.length === 0 ? (
+              <p className="text-center text-gray-500 py-12">
+                还没有日记，快来写第一篇吧！
+              </p>
+            ) : (
+              entries.map((entry) => (
+                <DiaryEntry
+                  key={entry.id}
+                  entry={entry}
+                  onDelete={async (id) => {
+                    const result = await deleteEntry(id);
+                    if (result.success) {
+                      setToast({ message: "日记删除成功！", type: "success" });
+                    } else {
+                      setToast({ message: "日记删除失败", type: "error" });
+                    }
+                  }}
+                  onEdit={handleEdit}
+                />
+              ))
+            )}
           </div>
         </section>
       </main>
@@ -167,6 +205,14 @@ function App() {
       <footer className="bg-white py-6 text-center text-gray-600">
         <p>用❤️为哒哒制作</p>
       </footer>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

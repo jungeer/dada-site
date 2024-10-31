@@ -13,7 +13,7 @@ export default function DiaryEntry({
   onDelete,
   onEdit,
 }: DiaryEntryProps) {
-  const formattedDate = new Date(entry.date).toLocaleDateString("zh-CN", {
+  const formattedDate = new Date(entry.created_at).toLocaleDateString("zh-CN", {
     year: "numeric",
     month: "long",
     day: "numeric",
