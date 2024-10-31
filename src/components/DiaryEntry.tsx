@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Trash2, Edit } from "lucide-react";
 import type { DiaryEntry as DiaryEntryType } from "../types";
 
@@ -6,13 +6,29 @@ interface DiaryEntryProps {
   entry: DiaryEntryType;
   onDelete?: (id: string) => void;
   onEdit?: (entry: DiaryEntryType) => void;
+  className?: string;
 }
 
 export default function DiaryEntry({
   entry,
   onDelete,
   onEdit,
+  className = "",
 }: DiaryEntryProps) {
+  const [imageHeight, setImageHeight] = useState<number>(0);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (entry.image && imageRef.current) {
+      const img = new Image();
+      img.src = entry.image;
+      img.onload = () => {
+        const aspectRatio = img.height / img.width;
+        setImageHeight(imageRef.current!.offsetWidth * aspectRatio);
+      };
+    }
+  }, [entry.image]);
+
   const formattedDate = new Date(entry.created_at).toLocaleDateString("zh-CN", {
     year: "numeric",
     month: "long",
@@ -20,13 +36,22 @@ export default function DiaryEntry({
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
+    <div
+      className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition break-inside-avoid ${className}`}
+      style={{ breakInside: "avoid" }}
+    >
       {entry.image && (
-        <img
-          src={entry.image}
-          alt={entry.title}
-          className="w-full h-48 object-cover"
-        />
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ height: imageHeight || "auto" }}
+        >
+          <img
+            ref={imageRef}
+            src={entry.image}
+            alt={entry.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
       )}
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">

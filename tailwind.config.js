@@ -15,4 +15,10 @@ export default {
     },
   },
   plugins: [],
+  safelist: [
+    'columns-1',
+    'sm:columns-2',
+    'lg:columns-3',
+    'break-inside-avoid'
+  ]
 };

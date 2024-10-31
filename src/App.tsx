@@ -258,19 +258,19 @@ function App() {
             )}
           </div>
 
-          {/* 日记列表 */}
-          <div className="mt-8 space-y-8">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-                <p className="mt-2 text-gray-600">加载中...</p>
-              </div>
-            ) : entries.length === 0 ? (
-              <p className="text-center text-gray-500 py-12">
-                还没有日记，快来写第一篇吧！
-              </p>
-            ) : (
-              entries.map((entry) => (
+          {/* 日记列表 - 瀑布流布局 */}
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+              <p className="mt-2 text-gray-600">加载中...</p>
+            </div>
+          ) : entries.length === 0 ? (
+            <p className="text-center text-gray-500 py-12">
+              还没有日记，快来写第一篇吧！
+            </p>
+          ) : (
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 space-y-8">
+              {entries.map((entry) => (
                 <DiaryEntry
                   key={entry.id}
                   entry={entry}
@@ -284,9 +284,9 @@ function App() {
                       : undefined
                   }
                 />
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
