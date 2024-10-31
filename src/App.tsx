@@ -10,13 +10,12 @@ import {
   LogOut,
   Image as ImageIcon,
   PlusCircle,
-  X,
 } from "lucide-react";
-import DiaryForm from "./components/DiaryForm";
 import DiaryEntry from "./components/DiaryEntry";
 import Toast from "./components/Toast";
 import LoginModal from "./components/LoginModal";
 import DiaryFormModal from "./components/DiaryFormModal";
+import ConfirmModal from "./components/ConfirmModal";
 import { useDiaryEntries } from "./hooks/useDiaryEntries";
 import { useBackgroundImage } from "./hooks/useBackgroundImage";
 import { useAuth } from "./hooks/useAuth";
@@ -25,11 +24,7 @@ import type { DiaryEntry as DiaryEntryType } from "./types";
 function App() {
   const { entries, isLoading, addEntry, deleteEntry, updateEntry } =
     useDiaryEntries();
-  const {
-    backgroundImage,
-    isLoading: bgLoading,
-    updateBackgroundImage,
-  } = useBackgroundImage();
+  const { backgroundImage, updateBackgroundImage } = useBackgroundImage();
   const { user, isAdmin, signOut } = useAuth();
   const [editingEntry, setEditingEntry] = useState<DiaryEntryType | null>(null);
   const [toast, setToast] = useState<{
@@ -38,11 +33,67 @@ function App() {
   } | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDiaryFormOpen, setIsDiaryFormOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [deletingEntryId, setDeletingEntryId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleEdit = (entry: DiaryEntryType) => {
-    setEditingEntry(entry);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleDeleteClick = (id: string) => {
+    setDeletingEntryId(id);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingEntryId) return;
+
+    setIsSubmitting(true);
+    const result = await deleteEntry(deletingEntryId);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setToast({ message: "日记删除成功！", type: "success" });
+      setIsConfirmDeleteOpen(false);
+      setDeletingEntryId(null);
+    } else {
+      setToast({ message: "日记删除失败", type: "error" });
+    }
+  };
+
+  const handleSubmit = async (
+    entry: Omit<DiaryEntryType, "id" | "created_at">
+  ) => {
+    setIsSubmitting(true);
+
+    try {
+      if (editingEntry) {
+        const result = await updateEntry({
+          ...entry,
+          id: editingEntry.id,
+          created_at: editingEntry.created_at,
+        });
+
+        if (result.success) {
+          setToast({ message: "日记更新成功！", type: "success" });
+          setIsDiaryFormOpen(false);
+          setEditingEntry(null);
+        } else {
+          setToast({ message: "日记更新失败，请重试", type: "error" });
+        }
+      } else {
+        const result = await addEntry(entry);
+
+        if (result.success) {
+          setToast({ message: "日记添加成功！", type: "success" });
+          setIsDiaryFormOpen(false);
+        } else {
+          setToast({ message: "日记添加失败，请重试", type: "error" });
+        }
+      }
+    } catch {
+      setToast({ message: "操作失败，请重试", type: "error" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +106,7 @@ function App() {
         if (updateResult.success) {
           setToast({ message: "背景图片更新成功！", type: "success" });
         } else {
-          setToast({ message: "背景图片更新失败", type: "error" });
+          setToast({ message: "背景图片更新失败，请重试", type: "error" });
         }
       };
       reader.readAsDataURL(file);
@@ -223,24 +274,7 @@ function App() {
                 <DiaryEntry
                   key={entry.id}
                   entry={entry}
-                  onDelete={
-                    isAdmin
-                      ? async (id) => {
-                          const result = await deleteEntry(id);
-                          if (result.success) {
-                            setToast({
-                              message: "日记删除成功！",
-                              type: "success",
-                            });
-                          } else {
-                            setToast({
-                              message: "日记删除失败",
-                              type: "error",
-                            });
-                          }
-                        }
-                      : undefined
-                  }
+                  onDelete={isAdmin ? handleDeleteClick : undefined}
                   onEdit={
                     isAdmin
                       ? (entry) => {
@@ -261,43 +295,41 @@ function App() {
         <p>用❤️为哒哒制作</p>
       </footer>
 
+      {/* 日记表单弹窗 */}
+      <DiaryFormModal
+        isOpen={isDiaryFormOpen}
+        onClose={() => {
+          if (!isSubmitting) {
+            setIsDiaryFormOpen(false);
+            setEditingEntry(null);
+          }
+        }}
+        editingEntry={editingEntry || undefined}
+        isLoading={isSubmitting}
+        onSubmit={handleSubmit}
+      />
+
+      {/* 删除确认弹窗 */}
+      <ConfirmModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => {
+          if (!isSubmitting) {
+            setIsConfirmDeleteOpen(false);
+            setDeletingEntryId(null);
+          }
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="确认删除"
+        message="确定要删除这篇日记吗？此操作无法撤销。"
+        confirmText="删除"
+        isLoading={isSubmitting}
+      />
+
       {/* 登录弹窗 */}
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSuccess={() => setToast({ message: "登录成功！", type: "success" })}
-      />
-
-      {/* 日记表单弹窗 */}
-      <DiaryFormModal
-        isOpen={isDiaryFormOpen}
-        onClose={() => {
-          setIsDiaryFormOpen(false);
-          setEditingEntry(null);
-        }}
-        editingEntry={editingEntry}
-        onSubmit={async (entry) => {
-          if (editingEntry) {
-            const result = await updateEntry({
-              ...entry,
-              id: editingEntry.id,
-              created_at: editingEntry.created_at,
-            });
-            if (result.success) {
-              setToast({ message: "日记更新成功！", type: "success" });
-              setEditingEntry(null);
-            } else {
-              setToast({ message: "日记更新失败", type: "error" });
-            }
-          } else {
-            const result = await addEntry(entry);
-            if (result.success) {
-              setToast({ message: "日记添加成功！", type: "success" });
-            } else {
-              setToast({ message: "日记添加失败", type: "error" });
-            }
-          }
-        }}
       />
 
       {/* Toast 提示 */}
