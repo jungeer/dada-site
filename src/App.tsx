@@ -1,17 +1,40 @@
-import React, { useState } from "react";
-import { Cat, Fish, Heart, User, Brush, BookOpen } from "lucide-react";
+import React, { useState, useRef } from "react";
+import {
+  Cat,
+  Fish,
+  Heart,
+  User,
+  Brush,
+  BookOpen,
+  Image as ImageIcon,
+} from "lucide-react";
 import DiaryForm from "./components/DiaryForm";
 import DiaryEntry from "./components/DiaryEntry";
 import { useDiaryEntries } from "./hooks/useDiaryEntries";
+import { useBackgroundImage } from "./hooks/useBackgroundImage";
 import type { DiaryEntry as DiaryEntryType } from "./types";
 
 function App() {
   const { entries, addEntry, deleteEntry, updateEntry } = useDiaryEntries();
+  const { backgroundImage, updateBackgroundImage } = useBackgroundImage();
   const [editingEntry, setEditingEntry] = useState<DiaryEntryType | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = (entry: DiaryEntryType) => {
     setEditingEntry(entry);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        updateBackgroundImage(result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -19,8 +42,8 @@ function App() {
       {/* 头部区域 */}
       <header className="relative h-[60vh] overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&q=80&w=3270"
-          alt="英国短毛猫"
+          src={backgroundImage}
+          alt="英国蓝短猫"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -29,6 +52,21 @@ function App() {
             <p className="text-xl">一位珍贵的英短公主</p>
           </div>
         </div>
+        {/* 背景图片修改按钮 */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="absolute top-4 right-4 flex items-center gap-2 px-4 py-2 bg-white/80 hover:bg-white/90 rounded-lg transition-colors"
+        >
+          <ImageIcon className="w-5 h-5" />
+          <span>更换背景图片</span>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleBackgroundChange}
+          className="hidden"
+        />
       </header>
 
       {/* 关于区域 */}
