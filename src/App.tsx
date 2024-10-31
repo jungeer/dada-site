@@ -9,11 +9,14 @@ import {
   LogIn,
   LogOut,
   Image as ImageIcon,
+  PlusCircle,
+  X,
 } from "lucide-react";
 import DiaryForm from "./components/DiaryForm";
 import DiaryEntry from "./components/DiaryEntry";
 import Toast from "./components/Toast";
 import LoginModal from "./components/LoginModal";
+import DiaryFormModal from "./components/DiaryFormModal";
 import { useDiaryEntries } from "./hooks/useDiaryEntries";
 import { useBackgroundImage } from "./hooks/useBackgroundImage";
 import { useAuth } from "./hooks/useAuth";
@@ -34,6 +37,7 @@ function App() {
     type: "success" | "error";
   } | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isDiaryFormOpen, setIsDiaryFormOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = (entry: DiaryEntryType) => {
@@ -184,41 +188,27 @@ function App() {
 
         {/* 日记区域 */}
         <section className="bg-white rounded-2xl p-8 shadow-lg">
-          <div className="flex items-center gap-3 mb-8">
-            <BookOpen className="w-6 h-6 text-blue-600" />
-            <h2 className="text-2xl font-semibold">哒哒的成长日记</h2>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-6 h-6 text-blue-600" />
+              <h2 className="text-2xl font-semibold">哒哒的成长日记</h2>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setEditingEntry(null);
+                  setIsDiaryFormOpen(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                <PlusCircle className="w-5 h-5" />
+                <span>写日记</span>
+              </button>
+            )}
           </div>
 
-          {/* 日记表单（仅管理员可见） */}
-          {isAdmin && (
-            <DiaryForm
-              onSubmit={async (entry) => {
-                if (editingEntry) {
-                  const result = await updateEntry({
-                    ...entry,
-                    id: editingEntry.id,
-                    created_at: editingEntry.created_at,
-                  });
-                  if (result.success) {
-                    setToast({ message: "日记更新成功！", type: "success" });
-                    setEditingEntry(null);
-                  } else {
-                    setToast({ message: "日记更新失败", type: "error" });
-                  }
-                } else {
-                  const result = await addEntry(entry);
-                  if (result.success) {
-                    setToast({ message: "日记添加成功！", type: "success" });
-                  } else {
-                    setToast({ message: "日记添加失败", type: "error" });
-                  }
-                }
-              }}
-            />
-          )}
-
           {/* 日记列表 */}
-          <div className="mt-12 space-y-8">
+          <div className="mt-8 space-y-8">
             {isLoading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
@@ -251,7 +241,14 @@ function App() {
                         }
                       : undefined
                   }
-                  onEdit={isAdmin ? handleEdit : undefined}
+                  onEdit={
+                    isAdmin
+                      ? (entry) => {
+                          setEditingEntry(entry);
+                          setIsDiaryFormOpen(true);
+                        }
+                      : undefined
+                  }
                 />
               ))
             )}
@@ -269,6 +266,38 @@ function App() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSuccess={() => setToast({ message: "登录成功！", type: "success" })}
+      />
+
+      {/* 日记表单弹窗 */}
+      <DiaryFormModal
+        isOpen={isDiaryFormOpen}
+        onClose={() => {
+          setIsDiaryFormOpen(false);
+          setEditingEntry(null);
+        }}
+        editingEntry={editingEntry}
+        onSubmit={async (entry) => {
+          if (editingEntry) {
+            const result = await updateEntry({
+              ...entry,
+              id: editingEntry.id,
+              created_at: editingEntry.created_at,
+            });
+            if (result.success) {
+              setToast({ message: "日记更新成功！", type: "success" });
+              setEditingEntry(null);
+            } else {
+              setToast({ message: "日记更新失败", type: "error" });
+            }
+          } else {
+            const result = await addEntry(entry);
+            if (result.success) {
+              setToast({ message: "日记添加成功！", type: "success" });
+            } else {
+              setToast({ message: "日记添加失败", type: "error" });
+            }
+          }
+        }}
       />
 
       {/* Toast 提示 */}
