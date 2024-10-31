@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Cat, Fish, Heart, User, Brush, BookOpen } from 'lucide-react';
-import DiaryForm from './components/DiaryForm';
-import DiaryEntry from './components/DiaryEntry';
-import { useDiaryEntries } from './hooks/useDiaryEntries';
-import type { DiaryEntry as DiaryEntryType } from './types';
+import React, { useState } from "react";
+import { Cat, Fish, Heart, User, Brush, BookOpen } from "lucide-react";
+import DiaryForm from "./components/DiaryForm";
+import DiaryEntry from "./components/DiaryEntry";
+import { useDiaryEntries } from "./hooks/useDiaryEntries";
+import type { DiaryEntry as DiaryEntryType } from "./types";
 
 function App() {
   const { entries, addEntry, deleteEntry, updateEntry } = useDiaryEntries();
@@ -11,49 +11,49 @@ function App() {
 
   const handleEdit = (entry: DiaryEntryType) => {
     setEditingEntry(entry);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100">
-      {/* Hero Section */}
+      {/* 头部区域 */}
       <header className="relative h-[60vh] overflow-hidden">
-        <img 
+        <img
           src="https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&q=80&w=3270"
-          alt="British Shorthair Cat"
+          alt="英国短毛猫"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
           <div className="text-center text-white">
             <h1 className="text-6xl font-bold mb-4">哒哒 DaDa</h1>
-            <p className="text-xl">A Precious British Shorthair Princess</p>
+            <p className="text-xl">一位珍贵的英短公主</p>
           </div>
         </div>
       </header>
 
-      {/* About Section */}
+      {/* 关于区域 */}
       <main className="max-w-4xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-12 mb-16">
           <div className="space-y-6">
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
               <div className="flex items-center gap-3 mb-4">
                 <Cat className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-semibold">About Me</h2>
+                <h2 className="text-2xl font-semibold">关于我</h2>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                I'm a beautiful 5-year-old British Shorthair with a stunning blue coat. 
-                My ears might be short, but they're perfectly suited to my adorable face!
+                我是一只漂亮的5岁英国短毛猫，有着迷人的蓝色毛发。
+                虽然我的耳朵有点短，但它们完美地搭配我可爱的脸庞！
               </p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
               <div className="flex items-center gap-3 mb-4">
                 <Fish className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-semibold">Food Preferences</h2>
+                <h2 className="text-2xl font-semibold">饮食偏好</h2>
               </div>
               <ul className="space-y-2 text-gray-600">
-                <li>• Favorite food: Taii Sauerkraut Fish Cat Food</li>
-                <li>• Not a fan of egg yolks</li>
+                <li>• 最爱的食物：太一酸菜鱼猫粮</li>
+                <li>• 不喜欢蛋黄</li>
               </ul>
             </div>
           </div>
@@ -62,43 +62,43 @@ function App() {
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
               <div className="flex items-center gap-3 mb-4">
                 <Heart className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-semibold">Personality</h2>
+                <h2 className="text-2xl font-semibold">性格特点</h2>
               </div>
               <ul className="space-y-2 text-gray-600">
-                <li>• A bit shy and timid</li>
-                <li>• Very affectionate with my favorite human</li>
-                <li>• Gentle and sweet-natured</li>
+                <li>• 有点害羞和胆小</li>
+                <li>• 对最喜欢的人非常亲昵</li>
+                <li>• 温柔可爱的性格</li>
               </ul>
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
               <div className="flex items-center gap-3 mb-4">
                 <User className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-semibold">Special Bond</h2>
+                <h2 className="text-2xl font-semibold">特殊羁绊</h2>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                My favorite human is Hui Hui. We share a special connection that makes my heart purr with joy!
+                我最喜欢的人是慧慧。我们之间有着特殊的联系，让我的心充满喜悦！
               </p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
               <div className="flex items-center gap-3 mb-4">
                 <Brush className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-semibold">Grooming Notes</h2>
+                <h2 className="text-2xl font-semibold">护理笔记</h2>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                I'm known for my luxurious but high-maintenance coat. 
-                Yes, I shed quite a bit, but that's just me sharing my love everywhere I go!
+                我以华丽但需要精心护理的毛发而闻名。
+                是的，我掉毛比较多，但这只是我在到处分享我的爱！
               </p>
             </div>
           </div>
         </div>
 
-        {/* Diary Section */}
+        {/* 日记区域 */}
         <section className="bg-white rounded-2xl p-8 shadow-lg">
           <div className="flex items-center gap-3 mb-8">
             <BookOpen className="w-6 h-6 text-blue-600" />
-            <h2 className="text-2xl font-semibold">DaDa's Growth Diary</h2>
+            <h2 className="text-2xl font-semibold">哒哒的成长日记</h2>
           </div>
 
           <DiaryForm
@@ -125,9 +125,9 @@ function App() {
         </section>
       </main>
 
-      {/* Footer */}
+      {/* 页脚 */}
       <footer className="bg-white py-6 text-center text-gray-600">
-        <p>Made with ❤️ for 哒哒 DaDa</p>
+        <p>用❤️为哒哒制作</p>
       </footer>
     </div>
   );

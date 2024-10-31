@@ -1,6 +1,6 @@
-import React from 'react';
-import { Trash2, Edit } from 'lucide-react';
-import type { DiaryEntry as DiaryEntryType } from '../types';
+import React from "react";
+import { Trash2, Edit } from "lucide-react";
+import type { DiaryEntry as DiaryEntryType } from "../types";
 
 interface DiaryEntryProps {
   entry: DiaryEntryType;
@@ -8,11 +8,15 @@ interface DiaryEntryProps {
   onEdit: (entry: DiaryEntryType) => void;
 }
 
-export default function DiaryEntry({ entry, onDelete, onEdit }: DiaryEntryProps) {
-  const formattedDate = new Date(entry.date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+export default function DiaryEntry({
+  entry,
+  onDelete,
+  onEdit,
+}: DiaryEntryProps) {
+  const formattedDate = new Date(entry.date).toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return (
@@ -34,12 +38,14 @@ export default function DiaryEntry({ entry, onDelete, onEdit }: DiaryEntryProps)
             <button
               onClick={() => onEdit(entry)}
               className="p-2 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100 transition"
+              aria-label="编辑"
             >
               <Edit className="w-5 h-5" />
             </button>
             <button
               onClick={() => onDelete(entry.id)}
               className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100 transition"
+              aria-label="删除"
             >
               <Trash2 className="w-5 h-5" />
             </button>
